@@ -2,9 +2,10 @@ CC = gcc
 
 # -MMD : Cette option du compilateur génère automatiquement des fichiers de dépendance .d pour chaque fichier .c
 
-CFLAGS = -std=c2x -D_XOPEN_SOURCE -Wpedantic -Wall \
+CFLAGS = -std=c2x -Wpedantic -Wall \
 	-Wextra -Wconversion -Werror -fstack-protector-all -fpie \
-	-pie -O2 -D_FORTIFY_SOURCE=2 -MMD	$(patsubst %, -I'%', $(VPATH))
+	-pie -O2 -D_FORTIFY_SOURCE=2 -MMD	$(patsubst %, -I'%', $(VPATH)) \
+	-D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=500
 
 # Nom de l'exécutable
 TARGET = server
@@ -38,6 +39,8 @@ $(TARGET): $(OBJS)
 obj/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+obj/ftruncate.o: ~/Desktop/cours_se/src/ftruncate.c
+	$(CC) $(CFLAGS) -c $< -o $@
 main.o : main.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
