@@ -7,11 +7,9 @@
 #include <unistd.h>
 #include <semaphore.h>
 
-int worker_b(segment_t *s);
-
-segment_t *worker_a(size_t n, size_t m, size_t p) {
+segment_t *worker_a(size_t n, size_t m, size_t p, int maxValue) {
   segment_t *s = segment_init(n, m, p);
-  fprintf(stderr, "worker_b start\n");
+  
   pid_t pid = fork();
   if (pid == -1) {
     perror("worker_a: fork");

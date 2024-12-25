@@ -19,7 +19,7 @@ VPATH	= $(patsubst %, src/%, $(MODULES))
 # Liste des fichiers source
 SRCS = $(patsubst %, %.c, $(MODULES))
 SRCS += main.c
-OBJS = $(patsubst %.c, %.o, $(SRCS))
+OBJS = $(patsubst %.c, obj/%.o, $(SRCS))
 
 DEPS = $(OBJS:.o=.d)
 
@@ -35,7 +35,7 @@ $(TARGET): $(OBJS)
 # Règle générique pour compiler les fichiers source en fichiers objets
 # $@ représente le nom de la cible
 # $< represente le fichier source
-%.o: %.c
+obj/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 main.o : main.c
