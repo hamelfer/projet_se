@@ -62,8 +62,8 @@ segment_t *segment_init(size_t n, size_t m, size_t p) {
   }
   segPtr->raw = segPtr + sizeof(segment_t);
   segPtr->matrixA = (matrix_t *) (segPtr->raw);
-  segPtr->matrixB = (matrix_t *) (segPtr->matrixA + matrixSizeA);
-  segPtr->matrixC = (matrix_t *) (segPtr->matrixB + matrixSizeB);
+  segPtr->matrixB = (matrix_t *) ((char *) (segPtr->matrixA) + matrixSizeA);
+  segPtr->matrixC = (matrix_t *) ((char *) segPtr->matrixB + matrixSizeB);
   /*initialize matrixes*/
   if (matrix_init(segment_get_matrixA(segPtr), n, m) != 0) {
     //FIX : free allocated memory.
