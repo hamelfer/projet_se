@@ -4,6 +4,12 @@
 #include <unistd.h>
 #include <stdio.h>
 
+// Macro définie dans Large File Support extension (LFS)
+#ifndef _FILE_OFFSET_BITS
+// Sur les machines 32 bits, utilise 64 bits pour off_t
+#define _FILE_OFFSET_BITS 64
+#endif
+
 struct matrix {
   sem_t lock;
   size_t nbLines;
@@ -14,7 +20,7 @@ struct matrix {
 int matrix_truncate(int fd, size_t nbLines, size_t NbCols, size_t *sizePtr) {
   size_t matrixSize = sizeof(matrix_t) + (sizeof(int) * (nbLines * NbCols));
   *sizePtr = 0;
-  if (ftruncate(fd, matrixSize) != 0) {
+  if (ftruncate(fd, (off_t) matrixSize) != 0) {
     perror("matrix_truncate: ftruncate");
     return -1;
   }
@@ -59,7 +65,8 @@ int matrix_write(int fd, matrix_t *m) {
   size_t written = 0;
   for (size_t i = 0; i < m->nbLines; ++i) {
     for (size_t j = 0; j < m->nbColumns; ++j) {
-      ssize_t r = write(fd, &m->lines[i][j], sizeof(int));
+      size_t index = (i * m->nbLines) + j;
+      ssize_t r = write(fd, &m->data[index], sizeof(int));
       if (r == (ssize_t) -1) {
         perror("matrix_write: write");
         return -1;
@@ -87,4 +94,5 @@ int matrix_release_lock(matrix_t *m) {
     perror("matrix_release_lock: sem_post");
     return -1;
   }
+  return 0;
 }
