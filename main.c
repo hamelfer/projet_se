@@ -29,7 +29,7 @@ int main() {
   int i = 1;
   while (i > 0) {
     fprintf(stderr, "request\n");
-    segment_t *s = worker_a(2, 3, 3);
+    segment_t *s = worker_a(2, 3, 3, 2);
     if (s == NULL) {
       return EXIT_FAILURE;
     }
