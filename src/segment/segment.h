@@ -10,9 +10,13 @@ typedef struct segment segment_t;
 
 segment_t *segment_init(size_t n, size_t m, size_t p);
 
-sem_t *segment_get_sem_matrixA(segment_t *s);
-sem_t *segment_get_sem_matrixB(segment_t *s);
-sem_t *segment_get_sem_matrixC(segment_t *s);
+int segment_get_lock_matrixA(segment_t *s);
+int segment_get_lock_matrixB(segment_t *s);
+int segment_get_lock_matrixC(segment_t *s);
+
+int segment_release_lock_matrixA(segment_t *s);
+int segment_release_lock_matrixB(segment_t *s);
+int segment_release_lock_matrixC(segment_t *s);
 
 matrix_t *segment_get_matrixA(segment_t *s);
 matrix_t *segment_get_matrixB(segment_t *s);
