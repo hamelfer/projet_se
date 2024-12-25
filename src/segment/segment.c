@@ -12,12 +12,8 @@
 #include <fcntl.h>
 
 struct segment {
-  sem_t lock_seg;
-  sem_t lock_matrixA;
   matrix_t *matrixA;
-  sem_t lock_matrixB;
   matrix_t *matrixB;
-  sem_t lock_matrixC;
   matrix_t *matrixC;
   void *raw;
 };
@@ -31,9 +27,7 @@ char *get_shm_name() {
 }
 
 segment_t *segment_init(size_t n, size_t m, size_t p) {
-  size_t size = (size_t) ((sizeof(int) * (n * m + m * p + n * p))
-        + (4 * sizeof(sem_t))
-        + sizeof(void *));
+  size_t size = (size_t) ((sizeof(segment_t)));
   int fd;
   if ((fd = shm_open(get_shm_name(), O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR)) == -1) {
     perror("segment_init: shm_open");
@@ -46,41 +40,68 @@ segment_t *segment_init(size_t n, size_t m, size_t p) {
     perror("segment_init: ftruncate");
     return NULL;
   }
+  size_t matrixesSize = 0;
+  size_t matrixSizeA, matrixSizeB, matrixSizeC;
+  if (matrix_truncate(fd, n, m, &matrixSizeA) != 0) {
+    return NULL;
+  }
+  matrixesSize += matrixSizeA;
+  if (matrix_truncate(fd, m, p, &matrixSizeB) != 0) {
+    return NULL;
+  }
+  matrixesSize += matrixSizeB;
+  if (matrix_truncate(fd, n, p, &matrixSizeC) != 0) {
+    return NULL;
+  }
+  matrixesSize += matrixSizeC;
+  size += matrixesSize;
   segment_t *segPtr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if (segPtr == MAP_FAILED) {
     perror("segment_init: mmap");
     return NULL;
   }
-
-  /*initialize semaphores*/
-  if (sem_init(segment_get_sem_matrixA(segPtr), 1, 1)) {
-    perror("segment_init: sem_init");
+  segPtr->raw = segPtr + sizeof(segment_t);
+  segPtr->matrixA = (matrix_t *) (segPtr->raw);
+  segPtr->matrixB = (matrix_t *) (segPtr->matrixA + matrixSizeA);
+  segPtr->matrixC = (matrix_t *) (segPtr->matrixB + matrixSizeB);
+  /*initialize matrixes*/
+  if (matrix_init(segment_get_matrixA(segPtr), n, m) != 0) {
     //FIX : free allocated memory.
     return NULL;
   }
-  if (sem_init(segment_get_sem_matrixB(segPtr), 1, 1)) {
-    perror("segment_init: sem_init");
+  if (matrix_init(segment_get_matrixB(segPtr), m, p) != 0) {
     //FIX : free allocated memory.
     return NULL;
   }
-  if (sem_init(segment_get_sem_matrixC(segPtr), 1, 1)) {
-    perror("segment_init: sem_init");
+  if (matrix_init(segment_get_matrixC(segPtr), n, p) != 0) {
     //FIX : free allocated memory.
     return NULL;
   }
   return segPtr;
 }
 
-sem_t *segment_get_sem_matrixA(segment_t *s) {
-  return &s->lock_matrixA;
+int segment_get_lock_matrixA(segment_t *s) {
+  return matrix_get_lock(segment_get_matrixA(s));
 }
 
-sem_t *segment_get_sem_matrixB(segment_t *s) {
-  return &s->lock_matrixB;
+int segment_get_lock_matrixB(segment_t *s) {
+  return matrix_get_lock(segment_get_matrixB(s));
 }
 
-sem_t *segment_get_sem_matrixC(segment_t *s) {
-  return &s->lock_matrixC;
+int segment_get_lock_matrixC(segment_t *s) {
+  return matrix_get_lock(segment_get_matrixC(s));
+}
+
+int segment_release_lock_matrixA(segment_t *s) {
+  return matrix_release_lock(segment_get_matrixA(s));
+}
+
+int segment_release_lock_matrixB(segment_t *s) {
+  return matrix_release_lock(segment_get_matrixB(s));
+}
+
+int segment_release_lock_matrixC(segment_t *s) {
+  return matrix_release_lock(segment_get_matrixC(s));
 }
 
 matrix_t *segment_get_matrixA(segment_t *s) {
