@@ -73,21 +73,18 @@ int matrix_write(int fd, matrix_t *m) {
   if (m == NULL) {
     return -1;
   }
-  size_t size = matrix_size(m);
-  size_t written = 0;
-  for (size_t i = 0; i < m->nbLines; ++i) {
-    for (size_t j = 0; j < m->nbColumns; ++j) {
-      size_t index = (i * m->nbLines) + j;
-      ssize_t r = write(fd, &m->data[index], sizeof(int));
+  for (size_t i = 1; i <= m->nbLines; ++i) {
+    for (size_t j = 1; j <= m->nbColumns; ++j) {
+      int *cell = matrix_get_cell(m, i, j);
+      ssize_t r = write(fd, cell, sizeof(int));
       if (r == (ssize_t) -1) {
         perror("matrix_write: write");
         return -1;
       }
       if (r != sizeof(int)) {
-        fprintf(stderr, "***Error: matrix_write: write: %zu bytes are not written.", size - written);
+        fprintf(stderr, "***Error: matrix_write: write: bytes are not completely written.");
         return -1;
       }
-      written += sizeof(int);
     }
   }
   return 0;
