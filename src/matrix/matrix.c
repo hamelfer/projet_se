@@ -40,26 +40,6 @@ size_t matrix_get_nbColumns(matrix_t *m) {
   return m->nbColumns;
 }
 
-static int get_random_int() {
-  //TODO5 : randomly generated result
-  return 1;
-}
-
-size_t matrix_size(matrix_t *m) {
-  return m->nbLines * m->nbColumns * sizeof(int);
-}
-
-int matrix_get(matrix_t *m, size_t line, size_t column) {
-  int *cell = matrix_get_cell(m, line, column);
-  return *cell;
-}
-
-int matrix_cell_set_random(matrix_t *m, size_t line, size_t column) {
-  int *cell = matrix_get_cell(m, line, column);
-  *cell = get_random_int();
-  return 0;
-}
-
 int *matrix_get_cell(matrix_t *m, size_t line, size_t column) {
   if (line <= 0 || column <= 0 || line > m->nbLines || column > m->nbColumns) {
     fprintf(stderr, "***Error: invalid matrix index");
