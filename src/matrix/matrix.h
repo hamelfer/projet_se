@@ -5,8 +5,9 @@
 
 typedef struct matrix matrix_t;
 
-int matrix_truncate(int fd, size_t nbLines, size_t NbCols, size_t *sizePtr);
 int matrix_init(matrix_t *m, size_t nbLines, size_t nbColumns);
+// retourne la taille occupe par la matrice (structure et donnes)
+size_t matrix_segmentSize(size_t nbLines, size_t nbColumns)
 
 size_t matrix_size(matrix_t *m);
 

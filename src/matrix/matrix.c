@@ -17,15 +17,8 @@ struct matrix {
   int *data;
 };
 
-int matrix_truncate(int fd, size_t nbLines, size_t NbCols, size_t *sizePtr) {
-  size_t matrixSize = sizeof(matrix_t) + (sizeof(int) * (nbLines * NbCols));
-  *sizePtr = 0;
-  if (ftruncate(fd, (off_t) matrixSize) != 0) {
-    perror("matrix_truncate: ftruncate");
-    return -1;
-  }
-  *sizePtr += matrixSize;
-  return 0;
+size_t matrix_segmentSize(size_t nbLines, size_t nbColumns) {
+  return sizeof(matrix_t) + sizeof(matrix_t) + (sizeof(int) * (nbLines * nbColumns));
 }
 
 int matrix_init(matrix_t *m, size_t nbLines, size_t nbColumns) {
