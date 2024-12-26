@@ -6,7 +6,7 @@
 typedef struct matrix matrix_t;
 
 // retourne la taille occupe par la matrice (structure et donnes)
-size_t matrix_segmentSize(size_t nbLines, size_t nbColumns)
+size_t matrix_segmentSize(size_t nbLines, size_t nbColumns);
 
 //initialise la matrice (structure)
 int matrix_init(matrix_t *m, size_t nbLines, size_t nbColumns);
