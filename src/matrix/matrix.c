@@ -39,7 +39,16 @@ int matrix_init(matrix_t *m, size_t nbLines, size_t nbColumns) {
   return 0;
 }
 
+size_t matrix_get_nbLines(matrix_t *m) {
+  return m->nbLines;
+}
+
+size_t matrix_get_nbColumns(matrix_t *m) {
+  return m->nbColumns;
+}
+
 static int get_random_int() {
+  //TODO5 : randomly generated result
   return 1;
 }
 
@@ -47,14 +56,24 @@ size_t matrix_size(matrix_t *m) {
   return m->nbLines * m->nbColumns * sizeof(int);
 }
 
+int matrix_get(matrix_t *m, size_t line, size_t column) {
+  int *cell = matrix_get_cell(m, line, column);
+  return *cell;
+}
+
 int matrix_cell_set_random(matrix_t *m, size_t line, size_t column) {
-  if (line <= 0 || column <= 0 || line > m->nbLines || column > m->nbColumns) {
-    fprintf(stderr, "***Error: matrix_cell_set_random: invalid matrix index");
-    return -1;
-  }
-  size_t index = ((line - 1) * m->nbColumns) + column;
-  m->data[index] = get_random_int();
+  int *cell = matrix_get_cell(m, line, column);
+  *cell = get_random_int();
   return 0;
+}
+
+int *matrix_get_cell(matrix_t *m, size_t line, size_t column) {
+  if (line <= 0 || column <= 0 || line > m->nbLines || column > m->nbColumns) {
+    fprintf(stderr, "***Error: invalid matrix index");
+    exit(EXIT_FAILURE);
+  }
+  size_t index = ((line - 1) * m->nbColumns) + column - 1;
+  return &m->data[index];
 }
 
 int matrix_write(int fd, matrix_t *m) {
