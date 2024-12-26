@@ -5,7 +5,8 @@ CC = gcc
 CFLAGS = -std=c2x -Wpedantic -Wall \
 	-Wextra -Wconversion -Werror -fstack-protector-all -fpie \
 	-pie -O2 -D_FORTIFY_SOURCE=2 -MMD	$(patsubst %, -I'%', $(VPATH)) \
-	-D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=500
+	-D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=500 -Wfatal-errors \
+	-lpthread
 
 # Nom de l'exécutable
 TARGET = server
