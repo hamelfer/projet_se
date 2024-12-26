@@ -40,8 +40,6 @@ $(TARGET): $(OBJS)
 obj/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-obj/ftruncate.o: ~/Desktop/cours_se/src/ftruncate.c
-	$(CC) $(CFLAGS) -c $< -o $@
 main.o : main.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
