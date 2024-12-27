@@ -11,6 +11,9 @@
 
 #include <sys/wait.h>
 
+
+#define MAX_INT_R 100
+
 typedef struct compute {
   matrix_t *matrixA;
   matrix_t *matrixB;
@@ -125,10 +128,39 @@ int worker_b(segment_t *s) {
   return 0;
 }
 
+// /================================================
+
+// Variable globale pour la graine
+static unsigned int seed;
+pthread_mutex_t s_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+// Fonction pour initialiser la graine
+void init_random_seed() {
+    pthread_mutex_lock(&s_mutex);
+    seed = (unsigned int)time(NULL);
+    pthread_mutex_unlock(&s_mutex);
+}
+
 int get_random_int() {
   //TODO5 : randomly generated result
-  return 1;
+  unsigned int local_seed;
+  unsigned int value_r;
+
+  pthread_mutex_lock(&s_mutex);
+  local_seed = seed;
+  pthread_mutex_unlock(&s_mutex);
+
+  rand_r(&local_seed);
+  value_r = local_seed % (unsigned int)(MAX_INT_R + 1);
+
+  pthread_mutex_lock(&s_mutex);
+  seed = local_seed;
+  pthread_mutex_unlock(&s_mutex);
+
+  return (int)value_r;
 }
+
+// ==============================================
 
 void *cell_compute_fun(void *arg) {
   //TODO1 : add assertions for matrixA and matrixB
