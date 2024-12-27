@@ -2,9 +2,9 @@
 #--------------------------------------------------------------#
     current version of the modules:
 
-matrix : v0.1.0 (tag : matrix-v0.1.0)
-segment : v0.0.3 (tag : segment-v0.0.3)
-worker : v0.0.1 (tag : worker : v0.0.1)
+matrix : v0.2.0-beta (tag : matrix-v0.2.0-beta)
+segment : v0.1.0 (tag : segment-v0.1.0)
+worker : v0.0.2 (tag : worker : v0.0.2)
 
 #--------------------------------------------------------------#
     informations generales:
