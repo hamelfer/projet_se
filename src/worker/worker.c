@@ -84,9 +84,6 @@ int worker_b(segment_t *s) {
     }
   }
   /*calcul de matrixC*/
-  if (segment_get_lock_matrixC(s) != 0) {
-    return -1;
-  }
   if (segment_get_lock_matrixA(s) != 0) {
     return -1;
   }
@@ -124,9 +121,6 @@ int worker_b(segment_t *s) {
   }
   //TODO5 : attente des threads de calcul
   if (segment_release_lock_matrixA(s) != 0) {
-    return -1;
-  }
-  if (segment_release_lock_matrixC(s) != 0) {
     return -1;
   }
   fprintf(stderr, "matrix b initialized and c\n");
