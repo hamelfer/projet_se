@@ -11,7 +11,6 @@
 
 #include <sys/wait.h>
 
-
 #define MAX_INT_R 100
 
 typedef struct compute {
@@ -136,9 +135,9 @@ pthread_mutex_t s_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Fonction pour initialiser la graine
 void init_random_seed() {
-    pthread_mutex_lock(&s_mutex);
-    seed = (unsigned int)time(NULL);
-    pthread_mutex_unlock(&s_mutex);
+  pthread_mutex_lock(&s_mutex);
+  seed = (unsigned int)time(NULL);
+  pthread_mutex_unlock(&s_mutex);
 }
 
 int get_random_int() {
