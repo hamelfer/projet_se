@@ -22,4 +22,10 @@ matrix_t *segment_get_matrixA(segment_t *s);
 matrix_t *segment_get_matrixB(segment_t *s);
 matrix_t *segment_get_matrixC(segment_t *s);
 
+#if defined DEBUG && DEBUG != 0
+
+void debug_segment(segment_t *s);
+
+#endif
+
 #endif

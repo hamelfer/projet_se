@@ -61,10 +61,10 @@ segment_t *segment_init(size_t n, size_t m, size_t p) {
     return NULL;
   }
   /*setting segmentHead (segment_t)*/
-  segPtr->raw = segPtr + sizeSegmentHead;
+  segPtr->raw = (void *) (segPtr + 1);
   segPtr->matrixA = (matrix_t *) (segPtr->raw);
-  segPtr->matrixB = (matrix_t *) ((char *) (segPtr->matrixA) + sizeMatrixA);
-  segPtr->matrixC = (matrix_t *) ((char *) (segPtr->matrixB) + sizeMatrixB);
+  segPtr->matrixB = (matrix_t *) (((char *) (segPtr->matrixA)) + sizeMatrixA);
+  segPtr->matrixC = (matrix_t *) (((char *) (segPtr->matrixB)) + sizeMatrixB);
   /*initialize matrixes*/
   if (matrix_init(segment_get_matrixA(segPtr), n, m) != 0) {
     //FIX : unmap mapped memory.
@@ -116,3 +116,18 @@ matrix_t *segment_get_matrixB(segment_t *s) {
 matrix_t *segment_get_matrixC(segment_t *s) {
   return s->matrixC;
 }
+
+#if defined DEBUG && DEBUG != 0
+
+void debug_segment(segment_t *s) {
+  fprintf(stderr, "\n======================== debug segment =======================\n");
+  debug_matrix_t(s->matrixA);
+  debug_matrix_t(s->matrixB);
+  debug_matrix_t(s->matrixC);
+  debug_matrix_data(s->matrixA);
+  debug_matrix_data(s->matrixB);
+  debug_matrix_data(s->matrixC);
+  fprintf(stderr, "\n======================== end debug segment =======================\n");
+}
+
+#endif
