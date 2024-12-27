@@ -57,7 +57,6 @@ segment_t *worker_a(size_t n, size_t m, size_t p) {
   }
   /*wait child process*/
   int wstatus;
-  fprintf(stderr, "waiting worker_b\n");
   if (wait(&wstatus) == (pid_t) -1) {
     perror("worker_a: wait");
     return NULL;
@@ -84,9 +83,6 @@ int worker_b(segment_t *s) {
     }
   }
   /*calcul de matrixC*/
-  if (segment_get_lock_matrixC(s) != 0) {
-    return -1;
-  }
   if (segment_get_lock_matrixA(s) != 0) {
     return -1;
   }
@@ -126,11 +122,6 @@ int worker_b(segment_t *s) {
   if (segment_release_lock_matrixA(s) != 0) {
     return -1;
   }
-  if (segment_release_lock_matrixC(s) != 0) {
-    return -1;
-  }
-  fprintf(stderr, "matrix b initialized and c\n");
-  fprintf(stderr, "workerb end\n");
   return 0;
 }
 
@@ -153,7 +144,6 @@ void *cell_compute_fun(void *arg) {
     res += (*cellFromMatrixA) * (*cellFromMatrixB);
   }
   *compute_arg->cell = res;
-  fprintf(stderr, "end cell_compute_fun\n");
   return arg;
 }
 
