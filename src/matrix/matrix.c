@@ -88,18 +88,22 @@ int matrix_release_lock(matrix_t *m) {
 
 #if defined DEBUG && DEBUG != 0
 
-void debug_matrix_t(matrix_t *m) {
+void debug_matrix_t([[maybe_unused]]matrix_t *m) {
+#if DEBUG > 1
   fprintf(stderr, "\n--------------- debug matrix struct --------------\n");
   fprintf(stderr, "lock at: %p -> %p\n", (void *) &m->lock, (void *)(&m->lock) + sizeof(m->lock));
   fprintf(stderr, "nbLines at: %zu: %p -> %p\n", m->nbLines, (void *) &m->nbLines, (void *) &m->nbLines + sizeof(m->nbLines));
   fprintf(stderr, "nbColumns: %zu: %p -> %p\n", m->nbColumns, (void *) &m->nbColumns, (void *) &m->nbColumns + sizeof(m->nbColumns));
   fprintf(stderr, "data at: %p -> %p\n",(void *) m->data, (void *) m->data + sizeof(m->data));
   fprintf(stderr, "\n--------------- end debug matrix struct --------------\n");
+#endif
 }
 
 void debug_matrix_data(matrix_t *m) {
   fprintf(stderr, "\n--------------- end debug matrix data --------------\n");
+#if DEBUG > 1
   fprintf(stderr, "data at: %p -> %p\n",(void *) m->data, (void *) m->data + sizeof(m->data));
+#endif
   size_t maxIndex = (m->nbLines) * (m->nbColumns);
   for (size_t i = 0; i < maxIndex; ++i) {
     fprintf(stderr, "| %d ", m->data[i]);
