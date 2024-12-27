@@ -18,7 +18,7 @@ struct matrix {
 };
 
 size_t matrix_segmentSize(size_t nbLines, size_t nbColumns) {
-  return sizeof(matrix_t) + sizeof(matrix_t) + (sizeof(int) * (nbLines * nbColumns));
+  return sizeof(matrix_t) + (sizeof(int) * (nbLines * nbColumns));
 }
 
 int matrix_init(matrix_t *m, size_t nbLines, size_t nbColumns) {
