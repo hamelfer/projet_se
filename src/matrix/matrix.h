@@ -25,4 +25,11 @@ int matrix_write(int fd, matrix_t *m);
 int matrix_get_lock(matrix_t *m);
 int matrix_release_lock(matrix_t *m);
 
+#if defined DEBUG && DEBUG != 0
+
+void debug_matrix_t(matrix_t *m);
+void debug_matrix_data(matrix_t *m);
+
+#endif
+
 #endif
