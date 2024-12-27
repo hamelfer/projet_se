@@ -116,3 +116,18 @@ matrix_t *segment_get_matrixB(segment_t *s) {
 matrix_t *segment_get_matrixC(segment_t *s) {
   return s->matrixC;
 }
+
+#if defined DEBUG && DEBUG != 0
+
+void debug_segment(segment_t *s) {
+  fprintf(stderr, "\n======================== debug segment =======================\n");
+  debug_matrix_t(s->matrixA);
+  debug_matrix_t(s->matrixB);
+  debug_matrix_t(s->matrixC);
+  debug_matrix_data(s->matrixA);
+  debug_matrix_data(s->matrixB);
+  debug_matrix_data(s->matrixC);
+  fprintf(stderr, "\n======================== end debug segment =======================\n");
+}
+
+#endif
