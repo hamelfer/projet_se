@@ -61,10 +61,10 @@ segment_t *segment_init(size_t n, size_t m, size_t p) {
     return NULL;
   }
   /*setting segmentHead (segment_t)*/
-  segPtr->raw = segPtr + sizeSegmentHead;
+  segPtr->raw = (void *) (segPtr + 1);
   segPtr->matrixA = (matrix_t *) (segPtr->raw);
-  segPtr->matrixB = (matrix_t *) ((char *) (segPtr->matrixA) + sizeMatrixA);
-  segPtr->matrixC = (matrix_t *) ((char *) (segPtr->matrixB) + sizeMatrixB);
+  segPtr->matrixB = (matrix_t *) (((char *) (segPtr->matrixA)) + sizeMatrixA);
+  segPtr->matrixC = (matrix_t *) (((char *) (segPtr->matrixB)) + sizeMatrixB);
   /*initialize matrixes*/
   if (matrix_init(segment_get_matrixA(segPtr), n, m) != 0) {
     //FIX : unmap mapped memory.
