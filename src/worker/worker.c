@@ -27,7 +27,6 @@ static int get_random_int();
 
 segment_t *worker_a(size_t n, size_t m, size_t p) {
   segment_t *s = segment_init(n, m, p);
-  /*lock matrixA*/
   if (segment_get_lock_matrixA(s) != 0) {
     return NULL;
   }
@@ -36,16 +35,14 @@ segment_t *worker_a(size_t n, size_t m, size_t p) {
     perror("worker_a: fork");
     return NULL;
   }
-  {/*in child process*/
+  {
     if (pid == 0) {
-      //TODO5 : gestion des signaux worker_b
       if (worker_b(s) != 0) {
         exit(EXIT_FAILURE);
       }
       exit(EXIT_SUCCESS);
     }
   }
-  /*initialisation matrixA*/
   for (size_t i = 1; i <= n; ++i) {
     for (size_t j = 1; j <= m; ++j) {
       int *cell = matrix_get_cell(segment_get_matrixA(s), i, j);
@@ -55,7 +52,6 @@ segment_t *worker_a(size_t n, size_t m, size_t p) {
   if (segment_release_lock_matrixA(s) != 0) {
     return NULL;
   }
-  /*wait child process*/
   int wstatus;
   if (wait(&wstatus) == (pid_t) -1) {
     perror("worker_a: wait");
@@ -74,7 +70,6 @@ segment_t *worker_a(size_t n, size_t m, size_t p) {
 }
 
 int worker_b(segment_t *s) {
-  /*initialisation matrixB*/
   matrix_t *matrixB = segment_get_matrixB(s);
   for (size_t i = 1; i <= matrix_get_nbLines(matrixB); ++i) {
     for (size_t j = 1; j <= matrix_get_nbColumns(matrixB); ++j) {
@@ -82,16 +77,13 @@ int worker_b(segment_t *s) {
       *cell = get_random_int();
     }
   }
-  /*calcul de matrixC*/
   if (segment_get_lock_matrixA(s) != 0) {
     return -1;
   }
   matrix_t *matrixA = segment_get_matrixA(s);
   matrix_t *matrixC = segment_get_matrixC(s);
-  /*creation des threads de calcul*/
-  for (size_t i = 1; i <= matrix_get_nbLines(matrixC); ++i) {/*lines*/
-    for (size_t j = 1; j <= matrix_get_nbColumns(matrixC); ++j) {/*columns*/
-      /*creation et initialisation de l'argument arg*/
+  for (size_t i = 1; i <= matrix_get_nbLines(matrixC); ++i) {
+    for (size_t j = 1; j <= matrix_get_nbColumns(matrixC); ++j) {
       compute_t *arg = malloc(sizeof(compute_t));
       if (arg == NULL) {
         fprintf(stderr, "***Error: malloc: Out of memory.");
@@ -102,14 +94,11 @@ int worker_b(segment_t *s) {
       arg->line = i;
       arg->column = j;
       arg->cell = matrix_get_cell(matrixC, i, j);
-      /*creation du thread de calcul de la cellule (i,j)*/
       pthread_t thread_i_j;
       if (pthread_create(&thread_i_j, NULL, cell_compute_fun, (void *) arg) != 0) {
         fprintf(stderr, "***Error: pthread_create.");
-        //TODO5 : check
         return -1;
       }
-      //TODO5 : store thread in waiting queue and not try to join immediately
       compute_t *res;
       if (pthread_join(thread_i_j, (void **) &res) != 0) {
         fprintf(stderr, "***Error: pthread_join.");
@@ -118,7 +107,6 @@ int worker_b(segment_t *s) {
       free(res);
     }
   }
-  //TODO5 : attente des threads de calcul
   if (segment_release_lock_matrixA(s) != 0) {
     return -1;
   }
@@ -126,12 +114,10 @@ int worker_b(segment_t *s) {
 }
 
 int get_random_int() {
-  //TODO5 : randomly generated result
   return 1;
 }
 
 void *cell_compute_fun(void *arg) {
-  //TODO1 : add assertions for matrixA and matrixB
   compute_t *compute_arg = arg;
   matrix_t *matrixA = compute_arg->matrixA;
   matrix_t *matrixB = compute_arg->matrixB;
@@ -146,5 +132,3 @@ void *cell_compute_fun(void *arg) {
   *compute_arg->cell = res;
   return arg;
 }
-
-//TODO5 : creation d'un module pour les listes chainees (enregistrer les ID de threads crees)
