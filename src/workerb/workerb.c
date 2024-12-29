@@ -1,16 +1,16 @@
-#include "worker.h"
+#include <pthread.h>
+#include "workerb.h"
 #include "segment.h"
 #include "matrix.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <semaphore.h>
+#include <time.h>
 
-#include <pthread.h>
+#define MAX_INT_R 100
 
-#include <sys/wait.h>
-
+// type et nom d'une structure servant a gerer l'argument de la
+//  fonction passee aux threads de calcul
 typedef struct compute {
   matrix_t *matrixA;
   matrix_t *matrixB;
@@ -19,62 +19,33 @@ typedef struct compute {
   int *cell;
 } compute_t;
 
+// type et nom d'une structure servant a construire une liste chainee
+//  dont les elements sont de type pthread_t.
+typedef struct thread_node {
+    pthread_t thread_id;
+    struct thread_node *next;
+} thread_node_t;
+
+// Pointeur vers la tête de la liste chaînée
+static thread_node_t *thread_list_head = NULL;
+
 // la fonction utilise par les threads pour le calcul des cellules de c
 static void *cell_compute_fun(void *arg);
 
-//fonction de generation d'un int aleatoire
-static int get_random_int();
+// Fonction pour ajouter un thread à la liste
+static void add_thread(pthread_t thread_id);
 
-segment_t *worker_a(size_t n, size_t m, size_t p) {
-  segment_t *s = segment_init(n, m, p);
-  if (segment_get_lock_matrixA(s) != 0) {
-    return NULL;
-  }
-  pid_t pid = fork();
-  if (pid == -1) {
-    perror("worker_a: fork");
-    return NULL;
-  }
-  {
-    if (pid == 0) {
-      if (worker_b(s) != 0) {
-        exit(EXIT_FAILURE);
-      }
-      exit(EXIT_SUCCESS);
-    }
-  }
-  for (size_t i = 1; i <= n; ++i) {
-    for (size_t j = 1; j <= m; ++j) {
-      int *cell = matrix_get_cell(segment_get_matrixA(s), i, j);
-      *cell = get_random_int();
-    }
-  }
-  if (segment_release_lock_matrixA(s) != 0) {
-    return NULL;
-  }
-  int wstatus;
-  if (wait(&wstatus) == (pid_t) -1) {
-    perror("worker_a: wait");
-    return NULL;
-  }
-  if (WIFEXITED(wstatus)) {
-    if (WEXITSTATUS(wstatus) == EXIT_FAILURE) {
-      fprintf(stderr, "***Aborting: worker_a: child process failure\n");
-      return NULL;
-    }
-  } else {
-    fprintf(stderr, "***Aborting: worker_a: child process not terminated normally\n");
-    return NULL;
-  }
-  return s;
-}
+// Fonction pour rejoindre tous les threads dans la liste
+static void join_all_threads();
 
-int worker_b(segment_t *s) {
+int worker_b(segment_t *s, int maxInt) {
   matrix_t *matrixB = segment_get_matrixB(s);
+  srand((unsigned int) time(NULL));
   for (size_t i = 1; i <= matrix_get_nbLines(matrixB); ++i) {
     for (size_t j = 1; j <= matrix_get_nbColumns(matrixB); ++j) {
       int *cell = matrix_get_cell(matrixB, i, j);
-      *cell = get_random_int();
+      int randomInt = rand() % maxInt;
+      *cell = randomInt;
     }
   }
   if (segment_get_lock_matrixA(s) != 0) {
@@ -99,22 +70,14 @@ int worker_b(segment_t *s) {
         fprintf(stderr, "***Error: pthread_create.");
         return -1;
       }
-      compute_t *res;
-      if (pthread_join(thread_i_j, (void **) &res) != 0) {
-        fprintf(stderr, "***Error: pthread_join.");
-        return -1;
-      }
-      free(res);
+      add_thread(thread_i_j);
     }
   }
+  join_all_threads();
   if (segment_release_lock_matrixA(s) != 0) {
     return -1;
   }
   return 0;
-}
-
-int get_random_int() {
-  return 1;
 }
 
 void *cell_compute_fun(void *arg) {
@@ -131,4 +94,26 @@ void *cell_compute_fun(void *arg) {
   }
   *compute_arg->cell = res;
   return arg;
+}
+
+static void add_thread(pthread_t thread) {
+  thread_node_t *p = malloc(sizeof(thread_node_t));
+  if (p == NULL) {
+    fprintf(stderr, "***Error: malloc: Out of memory.");
+    exit(EXIT_FAILURE);
+  }
+  p->thread_id = thread;
+  p->next = thread_list_head;
+  thread_list_head = p;
+}
+
+static void join_all_threads() {
+  thread_node_t *p = thread_list_head;
+  while (p != NULL) {
+    pthread_join(p->thread_id, NULL);
+    thread_node_t *temp = p;
+    p = p->next;
+    free(temp);
+  }
+  thread_list_head = NULL;
 }
