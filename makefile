@@ -9,7 +9,7 @@ CFLAGS = -std=c2x -Wpedantic -Wall \
 TARGET = server
 CLIENT = client
 
-MODULES = matrix segment worker
+MODULES = matrix segment workera workerb utils
 
 VPATH	= $(patsubst %, src/%, $(MODULES))
 
@@ -19,7 +19,7 @@ OBJS = $(patsubst %.c, obj/%.o, $(SRCS))
 
 DEPS = $(OBJS:.o=.d)
 
-all: $(TARGET) $(CLIENT) $(TEST)
+all: $(TARGET) $(CLIENT)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
@@ -39,6 +39,6 @@ clean:
 	rm -f $(TARGET) $(CLIENT) $(OBJS) $(DEPS)
 
 distclean: clean
-	rm -f -v *~
-		
+	rm -f -v server_request_pipe /dev/shm/*
+
 .PHONY: all clean distclean
