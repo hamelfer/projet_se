@@ -2,6 +2,7 @@
 
 #include "segment.h"
 #include "matrix.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -19,18 +20,10 @@ struct segment {
   void *raw;
 };
 
-char *get_shm_name() {
-  int pid = (int) getpid();
-  size_t strSize = (size_t) snprintf(NULL, 0, "%d", pid);
-  char *str = malloc(strSize + 1);
-  snprintf(str, strSize, "%d", pid);
-  return str;
-}
-
 segment_t *segment_init(size_t n, size_t m, size_t p) {
   int fd;
   {
-    char *shm_name = get_shm_name();
+    char *shm_name = get_pid_based_name();
     if ((fd = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR)) == -1) {
       perror("segment_init: shm_open");
       return NULL;
