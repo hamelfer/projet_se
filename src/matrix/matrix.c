@@ -21,6 +21,10 @@ size_t matrix_segmentSize(size_t nbLines, size_t nbColumns) {
   return sizeof(matrix_t) + (sizeof(int) * (nbLines * nbColumns));
 }
 
+size_t matrix_get_size(matrix_t *m) {
+  return sizeof(int) * m->nbLines * m->nbColumns;
+}
+
 int matrix_init(matrix_t *m, size_t nbLines, size_t nbColumns) {
   m->nbLines = nbLines;
   m->nbColumns = nbColumns;
@@ -49,22 +53,12 @@ int *matrix_get_cell(matrix_t *m, size_t line, size_t column) {
   return &m->data[index];
 }
 
-int matrix_write(int fd, matrix_t *m) {
-  if (m == NULL) {
-    return -1;
-  }
+int matrix_write(int **ptr, matrix_t *m) {
   for (size_t i = 1; i <= m->nbLines; ++i) {
     for (size_t j = 1; j <= m->nbColumns; ++j) {
       int *cell = matrix_get_cell(m, i, j);
-      ssize_t r = write(fd, cell, sizeof(int));
-      if (r == (ssize_t) -1) {
-        perror("matrix_write: write");
-        return -1;
-      }
-      if (r != sizeof(int)) {
-        fprintf(stderr, "***Error: matrix_write: write: bytes are not completely written.");
-        return -1;
-      }
+      **ptr = *cell;
+      *ptr += 1;
     }
   }
   return 0;
