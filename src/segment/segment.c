@@ -12,6 +12,7 @@
 #include <fcntl.h>
 
 struct segment {
+  size_t size;
   matrix_t *matrixA;
   matrix_t *matrixB;
   matrix_t *matrixC;
@@ -56,6 +57,7 @@ segment_t *segment_init(size_t n, size_t m, size_t p) {
     perror("segment_init: mmap");
     return NULL;
   }
+  segPtr->size = totalSize;
   segPtr->raw = (void *) (segPtr + 1);
   segPtr->matrixA = (matrix_t *) (segPtr->raw);
   segPtr->matrixB = (matrix_t *) (((char *) (segPtr->matrixA)) + sizeMatrixA);
@@ -70,6 +72,10 @@ segment_t *segment_init(size_t n, size_t m, size_t p) {
     return NULL;
   }
   return segPtr;
+}
+
+size_t segment_get_size(segment_t *s) {
+  return s->size;
 }
 
 int segment_get_lock_matrixA(segment_t *s) {
@@ -106,6 +112,39 @@ matrix_t *segment_get_matrixB(segment_t *s) {
 
 matrix_t *segment_get_matrixC(segment_t *s) {
   return s->matrixC;
+}
+
+int segment_write_matrixes(int fd, segment_t *s) {
+  size_t nbElementsMatrixA = matrix_get_nbElements(segment_get_matrixA(s));
+  size_t nbElementsMatrixB = matrix_get_nbElements(segment_get_matrixB(s));
+  size_t nbElementsMatrixC = matrix_get_nbElements(segment_get_matrixC(s));
+  size_t nbElementsMatrixes = nbElementsMatrixA + nbElementsMatrixB + nbElementsMatrixC;
+  size_t sizeMatrixes = sizeof(int) * nbElementsMatrixes;
+  int *buffer = malloc(sizeMatrixes);
+  if (buffer == NULL) {
+    fprintf(stderr, "segment_write_matrixes: Out of memory\n");
+    return -1;
+  }
+  int *ptr = buffer;
+  if (matrix_write(&ptr, segment_get_matrixA(s)) != 0) {
+    return -1;
+  }
+  if (matrix_write(&ptr, segment_get_matrixB(s)) != 0) {
+    return -1;
+  }
+  if (matrix_write(&ptr, segment_get_matrixC(s)) != 0) {
+    return -1;
+  }
+  size_t bytesToWrite = sizeMatrixes;
+  ssize_t r;
+  while (bytesToWrite != 0 && (r = write(fd, buffer, bytesToWrite)) != (ssize_t) bytesToWrite) {
+    if (r == -1) {
+      perror("segment_write_matrixes: write");
+      return -1;
+    }
+    bytesToWrite -= (size_t) r;
+  }
+  return 0;
 }
 
 #if defined DEBUG && DEBUG != 0
