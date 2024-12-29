@@ -115,12 +115,11 @@ matrix_t *segment_get_matrixC(segment_t *s) {
 }
 
 int segment_write_matrixes(int fd, segment_t *s) {
-  size_t nbElementsMatrixA = matrix_get_nbElements(segment_get_matrixA(s));
-  size_t nbElementsMatrixB = matrix_get_nbElements(segment_get_matrixB(s));
-  size_t nbElementsMatrixC = matrix_get_nbElements(segment_get_matrixC(s));
-  size_t nbElementsMatrixes = nbElementsMatrixA + nbElementsMatrixB + nbElementsMatrixC;
-  size_t sizeMatrixes = sizeof(int) * nbElementsMatrixes;
-  int *buffer = malloc(sizeMatrixes);
+  size_t elementsSizeMatrixA = matrix_get_size(segment_get_matrixA(s));
+  size_t elementsSizeMatrixB = matrix_get_size(segment_get_matrixB(s));
+  size_t elementsSizeMatrixC = matrix_get_size(segment_get_matrixC(s));
+  size_t elementsSizeMatrixes = elementsSizeMatrixA + elementsSizeMatrixB + elementsSizeMatrixC;
+  int *buffer = malloc(elementsSizeMatrixes);
   if (buffer == NULL) {
     fprintf(stderr, "segment_write_matrixes: Out of memory\n");
     return -1;
@@ -135,7 +134,7 @@ int segment_write_matrixes(int fd, segment_t *s) {
   if (matrix_write(&ptr, segment_get_matrixC(s)) != 0) {
     return -1;
   }
-  size_t bytesToWrite = sizeMatrixes;
+  size_t bytesToWrite = elementsSizeMatrixes;
   ssize_t r;
   while (bytesToWrite != 0 && (r = write(fd, buffer, bytesToWrite)) != (ssize_t) bytesToWrite) {
     if (r == -1) {
