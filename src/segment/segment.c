@@ -129,7 +129,7 @@ int segment_write_matrixes(int fd, segment_t *s) {
   }
   size_t bytesToWrite = elementsSizeMatrixes;
   ssize_t r;
-  char *ptr = buffer;
+  char *ptr = (char *) buffer;
   while (bytesToWrite != 0 && (r = write(fd, ptr, bytesToWrite)) != (ssize_t) bytesToWrite) {
     if (r == -1) {
       perror("segment_write_matrixes: write");
