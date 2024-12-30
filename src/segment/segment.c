@@ -23,7 +23,7 @@ struct segment {
 segment_t *segment_init(size_t n, size_t m, size_t p) {
   int fd;
   {
-    char *shm_name = get_pid_based_name();
+    char *shm_name = get_pid_based_name(getpid());
     if ((fd = shm_open(shm_name, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR)) == -1) {
       perror("segment_init: shm_open");
       return NULL;
