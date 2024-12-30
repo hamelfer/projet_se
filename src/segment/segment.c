@@ -117,24 +117,26 @@ int segment_write_matrixes(int fd, segment_t *s) {
     fprintf(stderr, "segment_write_matrixes: Out of memory\n");
     return -1;
   }
-  int *ptr = buffer;
-  if (matrix_write(&ptr, segment_get_matrixA(s)) != 0) {
+  int *intPtr = buffer;
+  if (matrix_write(&intPtr, segment_get_matrixA(s)) != 0) {
     return -1;
   }
-  if (matrix_write(&ptr, segment_get_matrixB(s)) != 0) {
+  if (matrix_write(&intPtr, segment_get_matrixB(s)) != 0) {
     return -1;
   }
-  if (matrix_write(&ptr, segment_get_matrixC(s)) != 0) {
+  if (matrix_write(&intPtr, segment_get_matrixC(s)) != 0) {
     return -1;
   }
   size_t bytesToWrite = elementsSizeMatrixes;
   ssize_t r;
-  while (bytesToWrite != 0 && (r = write(fd, buffer, bytesToWrite)) != (ssize_t) bytesToWrite) {
+  char *ptr = buffer;
+  while (bytesToWrite != 0 && (r = write(fd, ptr, bytesToWrite)) != (ssize_t) bytesToWrite) {
     if (r == -1) {
       perror("segment_write_matrixes: write");
       return -1;
     }
     bytesToWrite -= (size_t) r;
+    ptr += r;
   }
   return 0;
 }
