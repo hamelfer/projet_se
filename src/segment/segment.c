@@ -28,8 +28,8 @@ segment_t *segment_init(size_t n, size_t m, size_t p) {
       perror("segment_init: shm_open");
       return NULL;
     }
-    if (sem_unlink(shm_name) == -1) {
-      perror("segment_init: shm_unlink");
+    if (shm_unlink(shm_name) == -1) {
+      perror("segment_init: sem_unlink");
     }
     free(shm_name);
   }
