@@ -49,7 +49,7 @@ main.o : main.c
 
 #cible de nettoyage
 clean:
-	rm -f $(TARGET) $(CLIENT) $(OBJS) $(DEPS) client.d
+	rm -f $(TARGET) $(CLIENT) $(OBJS) $(DEPS) obj/client.o obj/client.d
 
 distclean: clean
 	rm -f -v server_request_pipe /dev/shm/*
