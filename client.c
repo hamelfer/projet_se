@@ -7,19 +7,43 @@
 
 #include "utils.h"
 
-int main() {
+int main(int argc, char **argv) {
+  if (argc != 5) {
+    fprintf(stderr, "Usage: %s nbLignesMatrixA nbColonnesMatrixA nbLignesMatrixB nbColonnesMatrixB\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  pid_t pid = getpid();
+  int maxValue = 3;
+  char *endptr;
+  size_t nbLinesMatrixA = strtoul(argv[1], &endptr, 10);
+  if (*argv[1] == '\0' || *endptr != '\0') {
+    fprintf(stderr, "Usage: %s nbLignesMatrixA nbColonnesMatrixA nbLignesMatrixB nbColonnesMatrixB\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  size_t nbColumnsMatrixA = strtoul(argv[2], &endptr, 10);
+    if (*argv[2] == '\0' || *endptr != '\0') {
+    fprintf(stderr, "Usage: %s nbLignesMatrixA nbColonnesMatrixA nbLignesMatrixB nbColonnesMatrixB\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  size_t nbLinesMatrixB = strtoul(argv[3], &endptr, 10);
+    if (*argv[3] == '\0' || *endptr != '\0') {
+    fprintf(stderr, "Usage: %s nbLignesMatrixA nbColonnesMatrixA nbLignesMatrixB nbColonnesMatrixB\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  size_t nbColumnsMatrixB = strtoul(argv[4], &endptr, 10);
+    if (*argv[4] == '\0' || *endptr != '\0') {
+    fprintf(stderr, "Usage: %s nbLignesMatrixA nbColonnesMatrixA nbLignesMatrixB nbColonnesMatrixB\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  if (nbColumnsMatrixA != nbLinesMatrixB) {
+    fprintf(stderr, "Error: nbColonnesMatrixA must equal nbLignesMatrixB for matrix multiplication.\n");
+    return EXIT_FAILURE;
+  }
   int requests = open("server_request_pipe", O_WRONLY);
   if (requests == -1) {
     perror("open");
     return EXIT_FAILURE;
   }
-  printf("request pipe opened\n");
-  pid_t pid = getpid();
-  int maxValue = 3;
-  size_t nbLinesMatrixA = 2;
-  size_t nbColumnsMatrixA = 2;
-  size_t nbLinesMatrixB = 2;
-  size_t nbColumnsMatrixB = 2;
   size_t bufferSize = sizeof(pid_t) + sizeof(int) + 4 * sizeof(size_t);
   char buffer[sizeof(pid_t) + sizeof(int) + 4 * sizeof(size_t)];
   pid_t *wPid = (pid_t *) buffer;
