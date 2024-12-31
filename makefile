@@ -4,7 +4,7 @@ CFLAGS = -std=c2x -Wpedantic -Wall \
 	-Wextra -Wconversion -Werror -fstack-protector-all -fpie \
 	-pie -O2 -D_FORTIFY_SOURCE=2 -MMD	$(patsubst %, -I'%', $(VPATH)) \
 	-D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=500 -Wfatal-errors \
-	-lpthread -DDEBUG=0
+	-lpthread -DDEBUG=0 -lrt -lc
 
 # nom de l'executable du serveur
 TARGET = server
@@ -35,8 +35,8 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
 #cible executable client
-$(CLIENT): client.c
-	$(CC) $(CFLAGS) -o $@ $<
+$(CLIENT): obj/client.o obj/utils.o
+	$(CC) $(CFLAGS) -o $@ $^
 
 #regles de compilation des fichiers objet
 obj/%.o: %.c
@@ -49,7 +49,7 @@ main.o : main.c
 
 #cible de nettoyage
 clean:
-	rm -f $(TARGET) $(CLIENT) $(OBJS) $(DEPS)
+	rm -f $(TARGET) $(CLIENT) $(OBJS) $(DEPS) client.d
 
 distclean: clean
 	rm -f -v server_request_pipe /dev/shm/*
